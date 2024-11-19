@@ -1,6 +1,7 @@
 from flask import Flask, render_template,request, redirect
 from flask_sqlalchemy import SQLAlchemy
-
+from speech import speech
+from speech_recognition.exceptions import UnknownValueError
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///diary.db'
@@ -92,9 +93,16 @@ def form_create():
     else:
         return render_template('create_card.html')
 
+@app.route('/voice')
+def voice():
+    try:
+        text = speech()
+    except UnknownValueError:
+        text = "[Nie wykryto wypowiedzianej notatki]"
+    except:
+        text = "[Coś poszło nie tak]"
 
-
-
+    return render_template("create_card.html", text=text)
 
 if __name__ == "__main__":
     app.run(debug=True)
